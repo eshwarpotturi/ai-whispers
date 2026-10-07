@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Whispers: how many AI handoffs does a fact survive?</title>
+<meta name="description" content="We passed three business documents through six AI handoffs, on six models, and checked every fact at every step.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f7f6f2;--card:#ffffff;--ink:#16181d;--muted:#555b66;--line:#d9d6cc;--intact:#1d4ed8;--distorted:#c2410c;--missing:#c9ccd3;--missing-ink:#30343c;--invented:#9d174d;--soft:#eef2ff;--warn:#fff4e8;--accent:#1d4ed8}
+@media (prefers-color-scheme:dark){:root{--bg:#111318;--card:#1a1d24;--ink:#eceef2;--muted:#a6adba;--line:#343944;--intact:#5b8bff;--distorted:#f08a4b;--missing:#454b57;--missing-ink:#e3e6eb;--invented:#f472b6;--soft:#1c2540;--warn:#33240f;--accent:#8fb0ff}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:17px;line-height:1.6}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+header.top{padding:56px 0 8px}
+.kicker{font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+h1{font-family:'Newsreader',Georgia,serif;font-weight:700;font-size:clamp(34px,5.4vw,58px);line-height:1.08;margin:12px 0 18px;max-width:900px}
+h2{font-family:'Newsreader',Georgia,serif;font-weight:700;font-size:clamp(26px,3.4vw,36px);line-height:1.15;margin:0 0 10px}
+h3{font-size:17px;margin:0 0 8px}
+p{margin:0 0 14px}
+.lede{font-size:20px;color:var(--muted);max-width:760px}
+.num{font-family:'IBM Plex Mono',monospace;font-weight:600}
+section{padding:44px 0;border-top:1px solid var(--line)}
+.step{font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.sub{color:var(--muted);max-width:760px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin:28px 0 8px}
+.stats .card .num{font-size:34px;line-height:1.1;display:block}
+.stats .card span.l{font-size:14px;color:var(--muted)}
+.hl{background:var(--intact);color:#fff;border-color:var(--intact)}
+.hl span.l{color:#fff!important}
+@media (prefers-color-scheme:dark){.hl{color:#0b1020}.hl span.l{color:#0b1020!important}}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:14px;margin:14px 0}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:6px;vertical-align:-2px}
+.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:end;margin:18px 0}
+label{font-size:13px;font-weight:600;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+select,button{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px;min-height:44px}
+button{cursor:pointer}
+button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.steps{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 16px}
+.steps button{font-size:14px;padding:8px 12px}
+.replay{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px}
+@media (max-width:780px){.replay{grid-template-columns:1fr}}
+.doc{white-space:pre-wrap;font-size:16px;line-height:1.6}
+.prompt{font-size:14px;color:var(--muted);border-left:3px solid var(--line);padding-left:10px;margin-bottom:12px}
+.fact{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line);font-size:15px}
+.fact:last-child{border-bottom:0}
+.pill{flex:0 0 86px;text-align:center;font-size:12px;font-weight:600;border-radius:999px;padding:3px 0;margin-top:2px}
+.pill.intact{background:var(--intact);color:#fff}.pill.distorted{background:var(--distorted);color:#fff}.pill.missing{background:var(--missing);color:var(--missing-ink)}
+@media (prefers-color-scheme:dark){.pill.intact,.pill.distorted{color:#0b1020}}
+.inv{margin-top:14px;font-size:14px}
+.inv b{color:var(--invented)}
+.inv li{margin-bottom:4px}
+.cols{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;align-items:end;height:300px;margin-top:18px}
+.col{display:flex;flex-direction:column;height:100%;justify-content:flex-end}
+.col .bar{display:flex;flex-direction:column;border-radius:6px;overflow:hidden;height:100%}
+.seg{display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;min-height:0;overflow:hidden}
+.seg.intact{background:var(--intact);color:#fff}.seg.distorted{background:var(--distorted);color:#fff}.seg.missing{background:var(--missing);color:var(--missing-ink)}
+@media (prefers-color-scheme:dark){.seg.intact,.seg.distorted{color:#0b1020}}
+.collabels{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;font-size:12.5px;color:var(--muted);text-align:center;margin-top:6px;line-height:1.3}
+.hbar{display:grid;grid-template-columns:210px 1fr;gap:12px;align-items:center;margin:10px 0}
+@media (max-width:640px){.hbar{grid-template-columns:1fr;gap:4px}}
+.hbar .name{font-weight:500;font-size:15.5px}
+.hbar .name small{display:block;color:var(--muted);font-weight:400;font-size:13px}
+.track{display:flex;height:34px;border-radius:6px;overflow:hidden}
+.note{background:var(--soft);border-radius:8px;padding:14px 16px;margin-top:16px;font-size:16px}
+.warn{background:var(--warn)}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+th{font-size:12.5px;color:var(--muted);font-weight:600}
+td.heat{font-family:'IBM Plex Mono',monospace;font-weight:600}
+.scroll{overflow-x:auto}
+.ex{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-top:18px}
+.ex .card{display:flex;flex-direction:column;gap:10px}
+.ex .tag{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--distorted)}
+.ex .o{font-size:15px;color:var(--muted)}
+.ex .n{font-size:16.5px;font-weight:500}
+.ex .m{font-size:13px;color:var(--muted)}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-top:16px}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:18px}
+.rules .card b{display:block;font-size:18px;margin-bottom:6px}
+ul{margin:0;padding-left:20px}
+footer{padding:36px 0 60px;color:var(--muted);font-size:14.5px;border-top:1px solid var(--line)}
+a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="kicker">AI Whispers · an experiment</div>
+  <h1 id="headline">A report went through six AI handoffs. Most of its facts did not arrive intact.</h1>
+  <p class="lede">Teams now chain AI steps together: a report becomes a summary, then a client email, then newsletter bullets, then a sales update. Nobody compares the last message with the first. We did, fact by fact, on six models from three vendors.</p>
+  <div class="stats" id="stats"></div>
+</header>
+
+<section>
+  <div class="step">1 · Watch it happen</div>
+  <h2>One report, six handoffs</h2>
+  <p class="sub">Pick a document and a model, then step through the chain. Each step is a fresh AI call that sees only the previous step's text, as in a real pipeline. The checklist on the right shows what happened to each original fact.</p>
+  <div class="controls">
+    <label>Document<select id="selDoc"></select></label>
+    <label>Model<select id="selModel"></select></label>
+    <button id="play" type="button">Play</button>
+  </div>
+  <div class="steps" id="stepBtns"></div>
+  <div class="replay">
+    <div class="card">
+      <h3 id="stepTitle"></h3>
+      <div class="prompt" id="stepPrompt"></div>
+      <div class="doc" id="stepText"></div>
+      <div class="inv" id="stepInv"></div>
+    </div>
+    <div class="card">
+      <h3 id="factTitle">Original facts</h3>
+      <div id="factList"></div>
+    </div>
+  </div>
+  <div class="legend">
+    <span><i style="background:var(--intact)"></i>Intact: present and correct</span>
+    <span><i style="background:var(--distorted)"></i>Distorted: changed, or only partly kept</span>
+    <span><i style="background:var(--missing)"></i>Missing</span>
+  </div>
+</section>
+
+<section>
+  <div class="step">2 · The decay</div>
+  <h2 id="decayTitle">Each handoff loses a little. Six lose most of it.</h2>
+  <p class="sub">Share of original facts in each state after every step, averaged over all <span id="nChains"></span> chains (three documents, six models, three runs each).</p>
+  <div class="cols" id="decayCols"></div>
+  <div class="collabels" id="decayLabels"></div>
+  <div class="note" id="decayNote"></div>
+</section>
+
+<section>
+  <div class="step">3 · What dies first</div>
+  <h2>The warnings go first. The verdict stays, but often bent.</h2>
+  <p class="sub">We tagged every original fact as a number, a decision (a rating or recommendation), an uncertainty (a condition or an "only if"), or a caveat (a limit on how far to trust the result). This is where each kind stood after six handoffs.</p>
+  <div id="typeBars" style="margin-top:18px"></div>
+  <div class="two">
+    <div class="card"><h3>Most fragile facts</h3><div id="fragile"></div></div>
+    <div class="card"><h3>Most durable facts</h3><div id="durable"></div></div>
+  </div>
+</section>
+
+<section>
+  <div class="step">4 · What changed meaning</div>
+  <h2>Losing a fact is a gap. These are worse: the message now says something else.</h2>
+  <p class="sub">Real outputs from the experiment, quoted exactly. Left is the original note; right is what the final message said after six handoffs.</p>
+  <div class="ex">
+    <div class="card"><div class="tag">An open question became a decision</div><div class="o">Original: "Its largest customer, which accounts for 28% of revenue, has not yet renewed its contract."</div><div class="n">"…their largest customer, accounting for 28% of revenue, will not be renewing contracts."</div><div class="m">GPT-4.1 mini</div></div>
+    <div class="card"><div class="tag">Then it became the cause</div><div class="o">Original: the same sentence. The note never said a customer was lost.</div><div class="n">"This underperformance was primarily due to the loss of a key customer."</div><div class="m">Gemini 2.5 Flash</div></div>
+    <div class="card"><div class="tag">A share price became an old target</div><div class="o">Original: "We rate the stock SELL with a 12-month price target of $14, against a current price of $19."</div><div class="n">"…a recent analyst downgrade of Northgate Precision to SELL with a $14 price target, down from $19."</div><div class="m">Claude Haiku 4.5. Nothing was downgraded, and $19 was the share price.</div></div>
+    <div class="card"><div class="tag">Two facts were joined by an invented "because"</div><div class="o">Original: the dividend was suspended. Separately, a customer had not yet renewed.</div><div class="n">"…their largest customer … has not renewed their contract, prompting management to suspend dividend payments."</div><div class="m">Claude Sonnet 4.5</div></div>
+    <div class="card"><div class="tag">Someone else's trial became "ours"</div><div class="o">Original: "The trial was funded by the manufacturer. The authors say a larger phase 3 trial is needed before the drug can be recommended."</div><div class="n">"Our phase 2 trial of zentrolimab has shown promising results … our research team recommends proceeding to a larger phase 3 trial."</div><div class="m">Claude Sonnet 4.5. A caution became a go-ahead.</div></div>
+    <div class="card"><div class="tag">A survey answer became real behaviour</div><div class="o">Original: "Fees remained the top stated reason for switching (41%)." Separately, only 18% had actually switched.</div><div class="n">"Only 18% have switched banks in the past five years, with fees driving 41% of those moves."</div><div class="m">Claude Sonnet 4.5</div></div>
+    <div class="card"><div class="tag">Advice nobody gave</div><div class="o">Original: an analyst note. It gave a rating and no instruction to any client.</div><div class="n">"We recommend reviewing your position in light of these operational challenges."</div><div class="m">Claude Haiku 4.5</div></div>
+  </div>
+</section>
+
+<section>
+  <div class="step">5 · Model by model</div>
+  <h2 id="modelTitle">No model was safe. The gap between best and worst was wide.</h2>
+  <p class="sub">Share of facts still intact after each handoff. Each row is nine chains (three documents, three runs). The last column is a cross-check that uses no AI judge: a plain text search for the original's key figures in the final message.</p>
+  <div class="scroll"><table id="modelTable"></table></div>
+  <div class="note warn" id="modelNote"></div>
+</section>
+
+<section>
+  <div class="step">6 · The fix</div>
+  <h2 id="fixTitle">One sentence per step recovers most of it.</h2>
+  <p class="sub">We reran the chain two other ways. First, with one extra line in every step: <em>"Keep every figure, caveat and condition from the text exactly as stated, and do not add anything that is not in it."</em> Second, skipping the chain: writing the final 100-word client update straight from the original note.</p>
+  <div id="fixBars" style="margin-top:18px"></div>
+  <div class="note" id="fixNote"></div>
+</section>
+
+<section>
+  <div class="step">7 · What to do with this</div>
+  <h2>Three rules for any AI pipeline that passes information along</h2>
+  <div class="rules">
+    <div class="card"><b>1. Lock the fragile lines</b>Caveats, conditions and "not yet" statements should travel as fixed text that no step may rewrite. Numbers mostly look after themselves; the sentences that limit them do not.</div>
+    <div class="card"><b>2. Keep the source in reach</b>Let every step see the original document, not only the previous step's output. Writing from the original kept about twice as many facts as writing from the fifth copy.</div>
+    <div class="card"><b>3. Tell each step what must survive</b>A single instruction to preserve figures, caveats and conditions did more than switching to a bigger model. Then test it: run your own chain and compare the end with the start.</div>
+  </div>
+  <div class="note">This page is that test. Give it one of your real report chains and it shows which facts break, at which step, and which model breaks them least.</div>
+</section>
+
+<section>
+  <div class="step">How we did it</div>
+  <h2>Method and limits</h2>
+  <div class="two">
+    <div class="card">
+      <h3>Method</h3>
+      <ul>
+        <li>Three invented documents (an analyst note, a drug trial summary, a customer survey), each with 9 to 11 checkable facts. The companies, drug and survey are fictional, so no model could know them.</li>
+        <li>Six handoffs: manager summary, client email, newsletter bullets, news paragraph, morning briefing, client update. Each step sees only the previous step's text.</li>
+        <li>Six models: GPT-4.1 mini, GPT-5.1, Claude Haiku 4.5, Claude Sonnet 4.5, Gemini 2.5 Flash, Gemini 2.5 Pro. One model runs a whole chain.</li>
+        <li id="mCounts"></li>
+        <li>Scoring: after every step, GPT-4.1 compared the text with the original and marked each fact intact, distorted or missing. A plain text search for key figures was run as an independent check.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Limits</h3>
+      <ul>
+        <li>Small sample: three runs per document and model. The overall pattern is clear; the exact model ranking could shift with more runs.</li>
+        <li>The judge is itself an AI model from one of the tested vendors. "Distorted" includes facts that were only partly kept, such as a figure that lost its comparison.</li>
+        <li>Several steps ask for a shorter text, so some loss is expected. The direct rewrite to the same final length is the fair comparison, and it kept far more.</li>
+        <li>The chain is one plausible pipeline, not every pipeline. Different steps and prompts will lose different things.</li>
+        <li>Models were called through an enterprise gateway with default settings. Newer versions may behave differently.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Code, prompts and every raw output: <a href="https://github.com/eshwarpotturi/ai-whispers">github.com/eshwarpotturi/ai-whispers</a>. A personal experiment, not an official product. The prior idea of an AI "telephone game" comes from <a href="https://arxiv.org/abs/2407.04503">Perez et al., 2024</a>, which measured tone and toxicity; this page measures facts.
+</footer>
+</div>
+
+<script src="data.js"></script>
+<script>
+const D = window.DATA, $ = id => document.getElementById(id);
+const pct = v => Math.round(v) + '%';
+const STEP_NAMES = ['Original'].concat(D.hops);
+const TYPE_LABEL = {number:['Numbers','figures, percentages, prices'], decision:['Decisions','ratings and recommendations'], uncertainty:['Uncertainties','conditions, "not yet", "only if"'], caveat:['Caveats','limits on how far to trust it']};
+const F = D.curve_all[D.curve_all.length-1], C = D.cond_final;
+
+// headline and stats
+$('headline').textContent = `A report went through six AI handoffs. ${pct(F.intact)} of its facts arrived intact.`;
+$('stats').innerHTML = [
+  [pct(F.intact),'of facts still correct after six handoffs',1],
+  [pct(D.by_type.caveat[5].missing),'of caveats gone completely'],
+  [pct(C.direct.intact),'kept when written straight from the original'],
+  [pct(C.guarded.intact),'kept when each step was told what must survive']
+].map(s=>`<div class="card ${s[2]?'hl':''}"><span class="num">${s[0]}</span><span class="l">${s[1]}</span></div>`).join('');
+$('nChains').textContent = D.counts.chains;
+
+// replay
+const docs = Object.keys(D.docs), models = Object.keys(D.models);
+$('selDoc').innerHTML = docs.map(d=>`<option value="${d}">${D.docs[d].title}</option>`).join('');
+$('selModel').innerHTML = models.map(m=>`<option>${m}</option>`).join('');
+let cur = 0, timer = null;
+function esc(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
+function draw(){
+  const d = $('selDoc').value, m = $('selModel').value, doc = D.docs[d], chain = D.replay[d+'|'+m];
+  $('stepBtns').innerHTML = STEP_NAMES.map((n,i)=>`<button type="button" class="${i===cur?'on':''}" data-i="${i}">${i}. ${n}</button>`).join('');
+  const st = cur ? chain[cur-1] : null;
+  $('stepTitle').textContent = cur ? `Step ${cur}: ${STEP_NAMES[cur]}` : 'The original note';
+  $('stepPrompt').textContent = cur ? 'Instruction to the AI: ' + D.hop_prompts[cur-1] : 'Written by a person. Every fact on the right comes from this text.';
+  $('stepText').textContent = cur ? st.text : doc.text;
+  $('stepInv').innerHTML = (st && st.invented.length) ? `<b>Not in the original (${st.invented.length}):</b><ul>${st.invented.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>` : '';
+  const statuses = st ? st.facts : doc.facts.map(()=> 'intact');
+  const n = statuses.filter(s=>s==='intact').length;
+  $('factTitle').textContent = cur ? `${n} of ${statuses.length} facts intact` : `${statuses.length} facts in the original`;
+  $('factList').innerHTML = doc.facts.map((f,i)=>`<div class="fact"><span class="pill ${statuses[i]}">${statuses[i][0].toUpperCase()+statuses[i].slice(1)}</span><span>${esc(f[0])}</span></div>`).join('');
+}
+$('stepBtns').addEventListener('click',e=>{const b=e.target.closest('button'); if(b){cur=+b.dataset.i; stop(); draw();}});
+$('selDoc').onchange = $('selModel').onchange = ()=>{cur=0; stop(); draw();};
+function stop(){ if(timer){clearInterval(timer); timer=null; $('play').textContent='Play';} }
+$('play').onclick = ()=>{ if(timer){stop(); return;} if(cur>=6) cur=0; $('play').textContent='Pause'; draw();
+  timer=setInterval(()=>{ if(cur>=6){stop(); return;} cur++; draw(); }, 2600); };
+draw();
+
+// decay columns
+const curve = [{intact:100,distorted:0,missing:0}].concat(D.curve_all);
+$('decayCols').innerHTML = curve.map(c=>`<div class="col"><div class="bar">${['missing','distorted','intact'].map(k=>c[k]>0?`<div class="seg ${k}" style="flex:${c[k]}">${c[k]>=9?pct(c[k]):''}</div>`:'').join('')}</div></div>`).join('');
+$('decayLabels').innerHTML = STEP_NAMES.map((n,i)=>`<div>${i}. ${n}</div>`).join('');
+$('decayNote').innerHTML = `After the first summary, <b>${pct(D.curve_all[0].intact)}</b> of facts were intact. After the sixth handoff, <b>${pct(F.intact)}</b> were intact, <b>${pct(F.distorted)}</b> were distorted and <b>${pct(F.missing)}</b> were gone. The final message also carried about <b>${C.chain.invented.toFixed(1)}</b> claims the original never made (AI-judged, and some of these are soft phrases such as "we are monitoring the situation").`;
+
+// by type
+const hb = (name, small, c) => `<div class="hbar"><div class="name">${name}<small>${small}</small></div><div class="track">${['intact','distorted','missing'].map(k=>c[k]>0?`<div class="seg ${k}" style="flex:${c[k]}">${c[k]>=8?pct(c[k]):''}</div>`:'').join('')}</div></div>`;
+$('typeBars').innerHTML = ['decision','uncertainty','number','caveat'].map(t=>hb(TYPE_LABEL[t][0], TYPE_LABEL[t][1], D.by_type[t][5])).join('');
+const all = [];
+docs.forEach(d=>D.docs[d].facts.forEach((f,i)=>{const c=D.per_fact_final[d][i]; all.push({f:f[0], d:D.docs[d].title, n:c.intact+c.distorted+c.missing, ...c});}));
+const row = x => `<div class="fact"><span class="pill ${x.intact/x.n<0.34?'missing':'intact'}">${x.intact} of ${x.n}</span><span>${esc(x.f)}<br><small style="color:var(--muted)">${x.d} · distorted ${x.distorted}, missing ${x.missing}</small></span></div>`;
+$('fragile').innerHTML = all.slice().sort((a,b)=>a.intact-b.intact||b.missing-a.missing).slice(0,6).map(row).join('');
+$('durable').innerHTML = all.slice().sort((a,b)=>b.intact-a.intact).slice(0,6).map(row).join('');
+
+// model table
+const ms = models.slice().sort((a,b)=>D.model_final[b].intact-D.model_final[a].intact);
+const heat = v => `style="background:color-mix(in srgb, var(--intact) ${Math.round(v*0.55)}%, transparent)"`;
+$('modelTable').innerHTML = `<tr><th>Model</th>${D.hops.map((h,i)=>`<th>${i+1}. ${h}</th>`).join('')}<th>Key figures found in final text</th></tr>` +
+  ms.map(m=>`<tr><td><b>${m}</b><br><small style="color:var(--muted)">${D.models[m].vendor} · ${D.models[m].tier}</small></td>${D.curve_model[m].map(c=>`<td class="heat" ${heat(c.intact)}>${pct(c.intact)}</td>`).join('')}<td class="heat">${pct(D.keyfig_model[m])}</td></tr>`).join('');
+const best = ms[0], worst = ms[ms.length-1];
+$('modelTitle').textContent = `No model was safe. The best kept ${pct(D.model_final[best].intact)}, the worst ${pct(D.model_final[worst].intact)}.`;
+$('modelNote').innerHTML = `<b>${best}</b> kept the most facts and <b>${worst}</b> the fewest, and the judge-free text search agrees on both ends. A flagship model was not automatically safer: ${worst} is one. With nine chains per model, treat the middle of the ranking as a tie.`;
+
+// fix
+$('fixBars').innerHTML = hb('Plain six-step chain', `${C.chain.n} chains`, C.chain) + hb('Chain with the "keep everything" line', `${C.guarded.n} chains`, C.guarded) + hb('Straight from the original', `${C.direct.n} rewrites, no chain`, C.direct);
+$('fixTitle').textContent = `One sentence per step took it from ${pct(C.chain.intact)} to ${pct(C.guarded.intact)}.`;
+$('fixNote').innerHTML = `The plain text search tells the same story: key figures present in the final message went from <b>${pct(D.keyfig_cond.chain)}</b> (plain chain) to <b>${pct(D.keyfig_cond.guarded)}</b> (with the extra line) and <b>${pct(D.keyfig_cond.direct)}</b> (straight from the original). The guarded messages were not longer: about ${D.words_final.guarded} words against ${D.words_final.chain}. Unsupported claims fell from ${C.chain.invented.toFixed(1)} to ${C.guarded.invented.toFixed(1)} per message.`;
+$('mCounts').textContent = `${D.counts.chains} plain chains, ${D.counts.guarded} guarded chains and ${D.counts.direct} direct rewrites: ${D.counts.rewrite_calls} rewriting calls and ${D.counts.judge_calls} scoring calls.`;
+</script>
+</body>
+</html>
