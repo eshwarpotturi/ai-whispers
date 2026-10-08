@@ -25,7 +25,13 @@ It is the game of Chinese whispers, played by AI. A short business document is p
 
 ## Why it matters
 
-Teams are chaining AI steps: research note to summary to client email to sales update. Each step looks fine by itself, and nobody compares the last message with the first. A client can receive a sentence the analyst never wrote. This experiment shows which facts break, at which step, and what to do about it.
+Newsrooms and publishers increasingly pass the same material through chains of AI steps: a wire story, press release or analyst note becomes an article, a newsletter item, a push alert and a social post. Each version reads well on its own, and nobody compares the last one with the first. Readers can end up with a sentence the original source never wrote. This experiment shows which facts break, at which step, and what to do about it. The same applies to any business that chains AI steps, such as research note to client email to sales update.
+
+## How the page reads
+
+1. The decay chart: green for facts still correct, red for distorted, faded red for missing.
+2. One analyst note through three handoffs, with the changed phrases highlighted in the text itself.
+3. Which kinds of facts die first, examples from every model, the fix, a step-by-step replay, and the model ranking.
 
 ## What to do with it
 

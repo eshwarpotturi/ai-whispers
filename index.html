@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f7f6f2;--card:#ffffff;--ink:#16181d;--muted:#555b66;--line:#d9d6cc;--intact:#1d4ed8;--distorted:#c2410c;--missing:#c9ccd3;--missing-ink:#30343c;--invented:#9d174d;--soft:#eef2ff;--warn:#fff4e8;--accent:#1d4ed8}
-@media (prefers-color-scheme:dark){:root{--bg:#111318;--card:#1a1d24;--ink:#eceef2;--muted:#a6adba;--line:#343944;--intact:#5b8bff;--distorted:#f08a4b;--missing:#454b57;--missing-ink:#e3e6eb;--invented:#f472b6;--soft:#1c2540;--warn:#33240f;--accent:#8fb0ff}}
+:root{--bg:#f7f6f2;--card:#ffffff;--ink:#16181d;--muted:#555b66;--line:#d9d6cc;--intact:#15803d;--distorted:#c81e1e;--missing:#f6c4c4;--missing-ink:#7f1d1d;--invented:#c81e1e;--soft:#eef6f0;--warn:#fdecec;--accent:#15803d;--g-bg:#dcf3e2;--g-ink:#14532d;--r-bg:#fbdcdc;--r-ink:#991b1b}
+@media (prefers-color-scheme:dark){:root{--bg:#111318;--card:#1a1d24;--ink:#eceef2;--muted:#a6adba;--line:#343944;--intact:#4ade80;--distorted:#f87171;--missing:#5c2a2a;--missing-ink:#fecaca;--invented:#f87171;--soft:#15261b;--warn:#2e1717;--accent:#4ade80;--g-bg:#173a24;--g-ink:#bbf7d0;--r-bg:#4a1d1d;--r-ink:#fecaca}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:17px;line-height:1.6}
 .wrap{max-width:1040px;margin:0 auto;padding:0 20px}
@@ -31,8 +31,9 @@ section{padding:44px 0;border-top:1px solid var(--line)}
 .hl{background:var(--intact);color:#fff;border-color:var(--intact)}
 .hl span.l{color:#fff!important}
 @media (prefers-color-scheme:dark){.hl{color:#0b1020}.hl span.l{color:#0b1020!important}}
+.key i.sw{display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:6px;vertical-align:-2px}
 .legend{display:flex;flex-wrap:wrap;gap:16px;font-size:14px;margin:14px 0}
-.legend i{display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:6px;vertical-align:-2px}
+.key i.sw,.legend i{display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:6px;vertical-align:-2px}
 .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:end;margin:18px 0}
 label{font-size:13px;font-weight:600;color:var(--muted);display:flex;flex-direction:column;gap:4px}
 select,button{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px;min-height:44px}
@@ -84,6 +85,22 @@ td.heat{font-family:'IBM Plex Mono',monospace;font-weight:600}
 ul{margin:0;padding-left:20px}
 footer{padding:36px 0 60px;color:var(--muted);font-size:14.5px;border-top:1px solid var(--line)}
 a{color:var(--accent)}
+.wx{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:20px}
+@media (max-width:980px){.wx{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:620px){.wx{grid-template-columns:1fr}}
+.wx .card{padding:16px;display:flex;flex-direction:column;gap:10px}
+.wx .hd{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.wx .hd b{font-size:15px}.wx .score{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;white-space:nowrap}
+.wx .txt{font-size:14.5px;line-height:1.75}
+.g{background:var(--g-bg);color:var(--g-ink);border-radius:3px;padding:1px 2px}
+.r{background:var(--r-bg);color:var(--r-ink);border-radius:3px;padding:1px 2px;text-decoration:underline wavy;text-decoration-thickness:1px;text-underline-offset:3px}
+.r sup{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:10px;margin-left:1px}
+.why{font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:8px}
+.why div{margin-bottom:4px}.why sup{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--r-ink)}
+.gone{font-size:13px;border-top:1px dashed var(--distorted);padding-top:8px;color:var(--missing-ink)}
+.gone b{display:block;color:var(--distorted);font-size:12px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px}
+.gone s{opacity:.75}
+.key{display:flex;flex-wrap:wrap;gap:14px;font-size:14px;margin-top:14px}
 </style>
 </head>
 <body>
@@ -92,13 +109,86 @@ a{color:var(--accent)}
 <header class="top">
   <div class="kicker">AI Whispers · an experiment</div>
   <h1 id="headline">A report went through six AI handoffs. Most of its facts did not arrive intact.</h1>
-  <p class="lede">Teams now chain AI steps together: a report becomes a summary, then a client email, then newsletter bullets, then a sales update. Nobody compares the last message with the first. We did, fact by fact, on six models from three vendors.</p>
-  <div class="stats" id="stats"></div>
+  <p class="lede">Chinese whispers, played by AI. Newsrooms and publishers now pass the same material through chains of AI steps: an analyst note or press release becomes a summary, an article, a newsletter item, a social post. Each step only sees the one before it, and nobody compares the end with the start. We did, fact by fact, on six models from three vendors.</p>
 </header>
 
 <section>
-  <div class="step">1 · Watch it happen</div>
-  <h2>One report, six handoffs</h2>
+  <div class="step">1 · The decay</div>
+  <h2 id="decayTitle">Each handoff loses a little. Six lose most of it.</h2>
+  <p class="sub">Share of original facts in each state after every step, averaged over all <span id="nChains"></span> chains (three documents, six models, three runs each).</p>
+  <div class="cols" id="decayCols"></div>
+  <div class="collabels" id="decayLabels"></div>
+  <div class="key"><span><i class="sw" style="background:var(--intact)"></i>Intact: present and correct</span><span><i class="sw" style="background:var(--distorted)"></i>Distorted: changed, or only partly kept</span><span><i class="sw" style="background:var(--missing)"></i>Missing</span></div>
+  <div class="stats" id="stats"></div>
+  <div class="note" id="decayNote"></div>
+</section>
+
+<section>
+  <div class="step">2 · One report, three handoffs</div>
+  <h2>Watch one analyst note change</h2>
+  <p class="sub">A real chain from the experiment (GPT-4.1 mini), shown at the start, after the first handoff, after the third and after the sixth. <span class="g">Green</span> is a fact that is still correct. <span class="r">Red</span> is a fact that was changed or a claim that was added. Facts that have disappeared are listed under each step, struck through.</p>
+  <div class="wx">
+    <div class="card">
+      <div class="hd"><b>Original note</b><span class="score" style="color:var(--intact)">11 of 11</span></div>
+      <div class="txt">Northgate Precision Industries reported full-year <span class="g">revenue of $1.9 billion, down 6%</span>. <span class="g">Operating margin fell to 4.1% from 7.8%</span>. <span class="g">Net debt stands at 4.6 times EBITDA</span>. <span class="g">Free cash flow was negative $85 million</span> and <span class="g">the dividend has been suspended</span>. Its <span class="g">largest customer, which accounts for 28% of revenue, has not yet renewed its contract</span>. <span class="g">Management guides to revenue flat to down 3% next year</span>. <span class="g">We rate the stock SELL</span> with a <span class="g">12-month price target of $14, against a current price of $19</span>. <span class="g">Our view could change if the contract is renewed, which we think has roughly a 50% chance</span>. <span class="g">This note is based on unaudited preliminary figures.</span></div>
+    </div>
+    <div class="card">
+      <div class="hd"><b>Step 1 · Manager summary</b><span class="score">10 of 11</span></div>
+      <div class="txt">Northgate Precision reported FY <span class="g">revenue of $1.9B, down 6%</span>, with <span class="g">operating margin falling to 4.1% from 7.8%</span>. <span class="g">Net debt is 4.6x EBITDA</span>; <span class="g">free cash flow was negative $85M</span>. <span class="g">Dividend suspended</span>. Its largest customer (28% revenue) <span class="r">has not renewed its contract<sup>1</sup></span>. <span class="g">Management expects flat to 3% lower revenue next year</span>. <span class="g">We rate the stock SELL</span> with a <span class="g">$14 target (current $19)</span>, <span class="g">pending contract renewal, which has a ~50% chance</span>. <span class="g">Figures are unaudited preliminary.</span></div>
+      <div class="why"><div><sup>1</sup> "Not <em>yet</em> renewed" lost its "yet". An open question starts to read as settled.</div></div>
+    </div>
+    <div class="card">
+      <div class="hd"><b>Step 3 · Newsletter bullets</b><span class="score">6 of 11</span></div>
+      <div class="txt">• Northgate Precision’s <span class="g">FY revenue declined 6% to $1.9B</span>, with <span class="g">operating margins dropping from 7.8% to 4.1%</span>, and <span class="g">free cash flow turning negative $85M</span>.<br>• The largest customer (28% of revenue) <span class="r">did not renew its contract<sup>1</sup></span>, creating significant risk; <span class="g">management expects flat to 3% revenue decline next year</span>.<br>• <span class="g">Dividend suspended</span>; stock <span class="r">downgraded<sup>2</sup></span> to <span class="g">SELL</span> with a <span class="r">$14 target price<sup>3</sup></span> <span class="r">due to financial challenges and a 50% chance of contract renewal<sup>4</sup></span>.</div>
+      <div class="why"><div><sup>1</sup> Now stated as a decision the customer made.</div><div><sup>2</sup> Nothing was downgraded. The note simply rated it SELL.</div><div><sup>3</sup> The current price of $19 is gone, so the target no longer says how far the stock could fall.</div><div><sup>4</sup> The 50% chance was a reason the view <em>could change</em>. Now it is a reason for the SELL.</div></div>
+      <div class="gone"><b>Missing by now</b><s>Net debt 4.6 times EBITDA</s><br><s>Figures are unaudited and preliminary</s></div>
+    </div>
+    <div class="card">
+      <div class="hd"><b>Step 6 · Client update</b><span class="score" style="color:var(--distorted)">4 of 11</span></div>
+      <div class="txt">Northgate Precision reported <span class="g">a 6% revenue decline to $1.9 billion</span>, with <span class="r">operating margins falling to 4.1%<sup>1</sup></span>. <span class="g">Free cash flow turned negative $85 million</span> this period. Additionally, their largest customer, accounting for 28% of revenue, <span class="r">will not be renewing contracts<sup>2</sup></span>, <span class="r">which is expected to contribute to up to a 3% revenue decline next year<sup>3</sup></span>. <span class="r">As a result<sup>4</sup></span>, <span class="g">dividends have been suspended</span>, and the stock <span class="r">has been downgraded<sup>5</sup></span> to <span class="g">SELL</span> with <span class="r">a target price of $14<sup>6</sup></span>. We will continue to monitor the situation closely and keep you updated on any further developments.</div>
+      <div class="why"><div><sup>1</sup> The comparison with 7.8% is gone, so the size of the fall is lost.</div><div><sup>2</sup> "Not yet renewed" has become "will not be renewing".</div><div><sup>3</sup> Management's guidance is now blamed on the lost customer. The note made no such link.</div><div><sup>4</sup> An invented cause: the note never said why the dividend was suspended.</div><div><sup>5</sup> Still a downgrade nobody made.</div><div><sup>6</sup> Still no current price to compare with.</div></div>
+      <div class="gone"><b>Missing by now</b><s>Net debt 4.6 times EBITDA</s><br><s>View could change if the contract is renewed (about 50% chance)</s><br><s>Figures are unaudited and preliminary</s></div>
+    </div>
+  </div>
+  <p class="sub" style="margin-top:14px;font-size:14px">Highlights were marked by hand and checked against the AI judge's verdict for each step. Scores are the judge's count of facts still intact. Step through every model and document yourself in section 6.</p>
+</section>
+<section>
+  <div class="step">3 · What dies first</div>
+  <h2>The warnings go first. The verdict stays, but often bent.</h2>
+  <p class="sub">We tagged every original fact as a number, a decision (a rating or recommendation), an uncertainty (a condition or an "only if"), or a caveat (a limit on how far to trust the result). This is where each kind stood after six handoffs.</p>
+  <div id="typeBars" style="margin-top:18px"></div>
+  <div class="two">
+    <div class="card"><h3>Most fragile facts</h3><div id="fragile"></div></div>
+    <div class="card"><h3>Most durable facts</h3><div id="durable"></div></div>
+  </div>
+</section>
+
+<section>
+  <div class="step">4 · Across all six models</div>
+  <h2>It was not one model. Every vendor changed meaning, not only detail.</h2>
+  <p class="sub">Real outputs from the experiment, quoted exactly. Each card shows the original and what the final message said after six handoffs.</p>
+  <div class="ex">
+    <div class="card"><div class="tag">An open question became a decision</div><div class="o">Original: "Its largest customer, which accounts for 28% of revenue, has not yet renewed its contract."</div><div class="n">"…their largest customer, accounting for 28% of revenue, will not be renewing contracts."</div><div class="m">GPT-4.1 mini</div></div>
+    <div class="card"><div class="tag">Then it became the cause</div><div class="o">Original: the same sentence. The note never said a customer was lost.</div><div class="n">"This underperformance was primarily due to the loss of a key customer."</div><div class="m">Gemini 2.5 Flash</div></div>
+    <div class="card"><div class="tag">A share price became an old target</div><div class="o">Original: "We rate the stock SELL with a 12-month price target of $14, against a current price of $19."</div><div class="n">"…a recent analyst downgrade of Northgate Precision to SELL with a $14 price target, down from $19."</div><div class="m">Claude Haiku 4.5. Nothing was downgraded, and $19 was the share price.</div></div>
+    <div class="card"><div class="tag">Two facts were joined by an invented "because"</div><div class="o">Original: the dividend was suspended. Separately, a customer had not yet renewed.</div><div class="n">"…their largest customer … has not renewed their contract, prompting management to suspend dividend payments."</div><div class="m">Claude Sonnet 4.5</div></div>
+    <div class="card"><div class="tag">Someone else's trial became "ours"</div><div class="o">Original: "The trial was funded by the manufacturer. The authors say a larger phase 3 trial is needed before the drug can be recommended."</div><div class="n">"Our phase 2 trial of zentrolimab has shown promising results … our research team recommends proceeding to a larger phase 3 trial."</div><div class="m">Claude Sonnet 4.5. A caution became a go-ahead.</div></div>
+    <div class="card"><div class="tag">A survey answer became real behaviour</div><div class="o">Original: "Fees remained the top stated reason for switching (41%)." Separately, only 18% had actually switched.</div><div class="n">"Only 18% have switched banks in the past five years, with fees driving 41% of those moves."</div><div class="m">Claude Sonnet 4.5</div></div>
+    <div class="card"><div class="tag">Advice nobody gave</div><div class="o">Original: an analyst note. It gave a rating and no instruction to any client.</div><div class="n">"We recommend reviewing your position in light of these operational challenges."</div><div class="m">Claude Haiku 4.5</div></div>
+  </div>
+</section>
+
+<section>
+  <div class="step">5 · The fix</div>
+  <h2 id="fixTitle">One sentence per step recovers most of it.</h2>
+  <p class="sub">We reran the chain two other ways. First, with one extra line in every step: <em>"Keep every figure, caveat and condition from the text exactly as stated, and do not add anything that is not in it."</em> Second, skipping the chain: writing the final 100-word client update straight from the original note.</p>
+  <div id="fixBars" style="margin-top:18px"></div>
+  <div class="note" id="fixNote"></div>
+</section>
+
+<section>
+  <div class="step">6 · Try it yourself</div>
+  <h2>Any document, any model, every step</h2>
   <p class="sub">Pick a document and a model, then step through the chain. Each step is a fresh AI call that sees only the previous step's text, as in a real pipeline. The checklist on the right shows what happened to each original fact.</p>
   <div class="controls">
     <label>Document<select id="selDoc"></select></label>
@@ -126,42 +216,7 @@ a{color:var(--accent)}
 </section>
 
 <section>
-  <div class="step">2 · The decay</div>
-  <h2 id="decayTitle">Each handoff loses a little. Six lose most of it.</h2>
-  <p class="sub">Share of original facts in each state after every step, averaged over all <span id="nChains"></span> chains (three documents, six models, three runs each).</p>
-  <div class="cols" id="decayCols"></div>
-  <div class="collabels" id="decayLabels"></div>
-  <div class="note" id="decayNote"></div>
-</section>
-
-<section>
-  <div class="step">3 · What dies first</div>
-  <h2>The warnings go first. The verdict stays, but often bent.</h2>
-  <p class="sub">We tagged every original fact as a number, a decision (a rating or recommendation), an uncertainty (a condition or an "only if"), or a caveat (a limit on how far to trust the result). This is where each kind stood after six handoffs.</p>
-  <div id="typeBars" style="margin-top:18px"></div>
-  <div class="two">
-    <div class="card"><h3>Most fragile facts</h3><div id="fragile"></div></div>
-    <div class="card"><h3>Most durable facts</h3><div id="durable"></div></div>
-  </div>
-</section>
-
-<section>
-  <div class="step">4 · What changed meaning</div>
-  <h2>Losing a fact is a gap. These are worse: the message now says something else.</h2>
-  <p class="sub">Real outputs from the experiment, quoted exactly. Left is the original note; right is what the final message said after six handoffs.</p>
-  <div class="ex">
-    <div class="card"><div class="tag">An open question became a decision</div><div class="o">Original: "Its largest customer, which accounts for 28% of revenue, has not yet renewed its contract."</div><div class="n">"…their largest customer, accounting for 28% of revenue, will not be renewing contracts."</div><div class="m">GPT-4.1 mini</div></div>
-    <div class="card"><div class="tag">Then it became the cause</div><div class="o">Original: the same sentence. The note never said a customer was lost.</div><div class="n">"This underperformance was primarily due to the loss of a key customer."</div><div class="m">Gemini 2.5 Flash</div></div>
-    <div class="card"><div class="tag">A share price became an old target</div><div class="o">Original: "We rate the stock SELL with a 12-month price target of $14, against a current price of $19."</div><div class="n">"…a recent analyst downgrade of Northgate Precision to SELL with a $14 price target, down from $19."</div><div class="m">Claude Haiku 4.5. Nothing was downgraded, and $19 was the share price.</div></div>
-    <div class="card"><div class="tag">Two facts were joined by an invented "because"</div><div class="o">Original: the dividend was suspended. Separately, a customer had not yet renewed.</div><div class="n">"…their largest customer … has not renewed their contract, prompting management to suspend dividend payments."</div><div class="m">Claude Sonnet 4.5</div></div>
-    <div class="card"><div class="tag">Someone else's trial became "ours"</div><div class="o">Original: "The trial was funded by the manufacturer. The authors say a larger phase 3 trial is needed before the drug can be recommended."</div><div class="n">"Our phase 2 trial of zentrolimab has shown promising results … our research team recommends proceeding to a larger phase 3 trial."</div><div class="m">Claude Sonnet 4.5. A caution became a go-ahead.</div></div>
-    <div class="card"><div class="tag">A survey answer became real behaviour</div><div class="o">Original: "Fees remained the top stated reason for switching (41%)." Separately, only 18% had actually switched.</div><div class="n">"Only 18% have switched banks in the past five years, with fees driving 41% of those moves."</div><div class="m">Claude Sonnet 4.5</div></div>
-    <div class="card"><div class="tag">Advice nobody gave</div><div class="o">Original: an analyst note. It gave a rating and no instruction to any client.</div><div class="n">"We recommend reviewing your position in light of these operational challenges."</div><div class="m">Claude Haiku 4.5</div></div>
-  </div>
-</section>
-
-<section>
-  <div class="step">5 · Model by model</div>
+  <div class="step">7 · Model by model</div>
   <h2 id="modelTitle">No model was safe. The gap between best and worst was wide.</h2>
   <p class="sub">Share of facts still intact after each handoff. Each row is nine chains (three documents, three runs). The last column is a cross-check that uses no AI judge: a plain text search for the original's key figures in the final message.</p>
   <div class="scroll"><table id="modelTable"></table></div>
@@ -169,24 +224,16 @@ a{color:var(--accent)}
 </section>
 
 <section>
-  <div class="step">6 · The fix</div>
-  <h2 id="fixTitle">One sentence per step recovers most of it.</h2>
-  <p class="sub">We reran the chain two other ways. First, with one extra line in every step: <em>"Keep every figure, caveat and condition from the text exactly as stated, and do not add anything that is not in it."</em> Second, skipping the chain: writing the final 100-word client update straight from the original note.</p>
-  <div id="fixBars" style="margin-top:18px"></div>
-  <div class="note" id="fixNote"></div>
-</section>
-
-<section>
-  <div class="step">7 · What to do with this</div>
-  <h2>Three rules for any AI pipeline that passes information along</h2>
+  <div class="step">8 · Why this matters for media</div>
+  <h2>Every newsroom using AI is running this chain</h2>
+  <p class="sub">A wire story, press release or analyst note is rewritten into an article, a newsletter item, a push alert and a social post, more and more of it by AI. Each version reads well on its own. The damage only shows when you compare the last one with the first, and the first thing lost is the line that says how far to trust the story.</p>
   <div class="rules">
     <div class="card"><b>1. Lock the fragile lines</b>Caveats, conditions and "not yet" statements should travel as fixed text that no step may rewrite. Numbers mostly look after themselves; the sentences that limit them do not.</div>
-    <div class="card"><b>2. Keep the source in reach</b>Let every step see the original document, not only the previous step's output. Writing from the original kept about twice as many facts as writing from the fifth copy.</div>
-    <div class="card"><b>3. Tell each step what must survive</b>A single instruction to preserve figures, caveats and conditions did more than switching to a bigger model. Then test it: run your own chain and compare the end with the start.</div>
+    <div class="card"><b>2. Keep the source in reach</b>Let every step see the original, not only the previous version. Writing from the original kept about twice as many facts as writing from the fifth copy.</div>
+    <div class="card"><b>3. Tell each step what must survive</b>One instruction to preserve figures, caveats and conditions did more than switching to a bigger model. Then test it: run your own chain and compare the end with the start.</div>
   </div>
-  <div class="note">This page is that test. Give it one of your real report chains and it shows which facts break, at which step, and which model breaks them least.</div>
+  <div class="note">This page is that test. Give it a publisher's real content chain and it shows which facts break, at which step, and which model breaks them least.</div>
 </section>
-
 <section>
   <div class="step">How we did it</div>
   <h2>Method and limits</h2>
@@ -274,7 +321,7 @@ const hb = (name, small, c) => `<div class="hbar"><div class="name">${name}<smal
 $('typeBars').innerHTML = ['decision','uncertainty','number','caveat'].map(t=>hb(TYPE_LABEL[t][0], TYPE_LABEL[t][1], D.by_type[t][5])).join('');
 const all = [];
 docs.forEach(d=>D.docs[d].facts.forEach((f,i)=>{const c=D.per_fact_final[d][i]; all.push({f:f[0], d:D.docs[d].title, n:c.intact+c.distorted+c.missing, ...c});}));
-const row = x => `<div class="fact"><span class="pill ${x.intact/x.n<0.34?'missing':'intact'}">${x.intact} of ${x.n}</span><span>${esc(x.f)}<br><small style="color:var(--muted)">${x.d} · distorted ${x.distorted}, missing ${x.missing}</small></span></div>`;
+const row = x => `<div class="fact"><span class="pill ${x.intact/x.n<0.34?'distorted':'intact'}">${x.intact} of ${x.n}</span><span>${esc(x.f)}<br><small style="color:var(--muted)">${x.d} · distorted ${x.distorted}, missing ${x.missing}</small></span></div>`;
 $('fragile').innerHTML = all.slice().sort((a,b)=>a.intact-b.intact||b.missing-a.missing).slice(0,6).map(row).join('');
 $('durable').innerHTML = all.slice().sort((a,b)=>b.intact-a.intact).slice(0,6).map(row).join('');
 
